@@ -125,11 +125,8 @@ public class GameWindows extends Frame implements Runnable {
     public void paint(Graphics g) {
         g.drawImage(background, 0, 0, null);
         if(GameLogic!=null) {
-            for (Plane PLANE : GameLogic.getAllPlanes()) {
-                PLANE.MoveX((PLANE.getPlaneSpeed() * (PLANE.vectorRight - PLANE.vectorLeft)) / GameLogic.FPS);
-                PLANE.MoveY((PLANE.getPlaneSpeed() * (PLANE.vectorDown - PLANE.vectorUp)) / GameLogic.FPS);
-                PLANE.draw(g);
-            }
+            GameLogic.update(g);
+           System.out.println("Have "+GameLogic.getAllBullets().size()+" bullets");
         }
 //        if(PLANE1 != null) {
 //            this.PLANE_SPEED = PLANE1.getPlaneSpeed();

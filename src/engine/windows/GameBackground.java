@@ -49,4 +49,9 @@ public class GameBackground extends GameTypeDefinition{
         this.p = p;
     }
 
+    public void rotate(double angle) {
+        System.out.println("Rotate");
+    }
+
+
 }

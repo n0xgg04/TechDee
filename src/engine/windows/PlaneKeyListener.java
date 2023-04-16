@@ -22,19 +22,23 @@ public class PlaneKeyListener implements KeyListener {
 
     }
 
-    @Override
+   // @Override
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
         for(Plane PLANE : ALL_PLANES) {
-                if(key == PLANE.planeControl.LEFT)
-                        PLANE.vectorLeft = 1;
-                else if(key == PLANE.planeControl.UP)
-                        PLANE.vectorUp = 1;
-                else if(key == PLANE.planeControl.DOWN)
-                        PLANE.vectorDown = 1;
-                else if(key == PLANE.planeControl.RIGHT)
-                        PLANE.vectorRight = 1;
-                else if(key == PLANE.planeControl.SHOOT)
+                if(key == PLANE.planeControl.LEFT) {
+                    PLANE.vectorLeft = 1;
+                    PLANE.rotate(-90);
+                }else if(key == PLANE.planeControl.UP) {
+                    PLANE.vectorUp = 1;
+                    PLANE.rotate(0);
+                }else if(key == PLANE.planeControl.DOWN) {
+                    PLANE.vectorDown = 1;
+                    PLANE.rotate(180);
+                }else if(key == PLANE.planeControl.RIGHT) {
+                    PLANE.vectorRight = 1;
+                    PLANE.rotate(90);
+                }else if(key == PLANE.planeControl.SHOOT)
                         PLANE.shoot();
         }
     }
@@ -51,8 +55,6 @@ public class PlaneKeyListener implements KeyListener {
                 PLANE.vectorDown = 0;
             else if(key == PLANE.planeControl.RIGHT)
                 PLANE.vectorRight = 0;
-            else if(key == PLANE.planeControl.SHOOT)
-                PLANE.shoot();
         }
     }
 }

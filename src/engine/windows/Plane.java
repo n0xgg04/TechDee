@@ -19,13 +19,14 @@ import java.io.IOException;
  */
 public class Plane extends GameTypeDefinition implements PositionLogic{
 
-    private BufferedImage imagePlane;
+    private BufferedImage imagePlane, originImagePlane;
     private int PLANE_DAME = 300;
     private int PLANE_HP = 100;
     private int PLANE_ID;
     public int vectorUp, vectorRight, vectorDown, vectorLeft;
     private Point PLANE_POSITION;
     private int PLANE_SPEED = 300;
+    private double angle = 0;
     private int type;
     private GameLogic gameControl;
     public PlaneControl planeControl;
@@ -61,6 +62,7 @@ public class Plane extends GameTypeDefinition implements PositionLogic{
                 this.setImage("Resources/PLANE4.png");
                 break;
         }
+        this.originImagePlane = this.imagePlane;
     }
 
     private void setImage(String path){
@@ -95,7 +97,6 @@ public class Plane extends GameTypeDefinition implements PositionLogic{
         this.setImageByType(_type);
     }
 
-    @Override
     public void draw(Graphics g){
         g.drawImage(this.imagePlane, this.PLANE_POSITION.x, this.PLANE_POSITION.y, null);
     }
@@ -125,9 +126,18 @@ public class Plane extends GameTypeDefinition implements PositionLogic{
     }
 
     public void shoot(){
-        Bullet bullet = new Bullet(this.PLANE_POSITION.x, this.PLANE_POSITION.y, Bullet_Type.BULLET1, this.PLANE_ID);
+        //find center of plane imageto shoot
+
+        Bullet bullet = new Bullet(this.PLANE_POSITION.x + this.imagePlane.getWidth()/2, this.PLANE_POSITION.y, Bullet_Type.BULLET1, this.PLANE_ID, this.angle);
         this.gameControl.addBullet(bullet);
     }
+    public void rotate(double angle){
+        this.angle = angle;
+        this.imagePlane = this.rotateImage(this.originImagePlane, angle);
+    }
 
+    public double getAngle(){
+        return this.angle;
+    }
 
 }
