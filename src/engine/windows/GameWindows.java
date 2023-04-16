@@ -6,135 +6,180 @@
 package engine.windows;
 
 
+import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Tdh4vn
  */
 public class GameWindows extends Frame implements Runnable {
 
-    Point start, end;
-    boolean updated = true;
-
-    private class MyMouseListener extends MouseAdapter {
-        public void mousePressed(MouseEvent e) {
-            start = e.getPoint();
-        }
-
-        public void mouseClicked(MouseEvent e) {
-
-        }
-
-        public void mouseReleased(MouseEvent e) {
-            end = e.getPoint();
-            updated = false;
-        }
-    }
-
-    private class MyMouseMotionListener extends MouseAdapter {
-        public void mouseDragged(MouseEvent e) {
-            end = e.getPoint();
-        }
-    }
+    public Plane PLANE1;
+    private GameLogic GameLogic;
+    private int PLANE_SPEED = 300; // Pixel per second;
+    private  int UPDATE_PER_SECOND = 120;
+    BufferedImage background;
+    BufferedImage plane;
+    int x = 300;
+    int y = 300;
+    int vectorLeft = 0;
+    int vectorRight = 0;
+    int vectorUp = 0;
+    int vectorDown = 0;
+    int mouseX = -1;
+    int mouseY = -1;
+    private Image image;
+    private Graphics second;
 
     public GameWindows() {
         super();
-        this.setTitle("Mao phắc");
+        this.setTitle("Mao mạch");
         this.setFocusable(true);
         this.setSize(480, 800);
         this.setVisible(true);
         this.setResizable(false);
-        this.addMouseListener(new MyMouseListener());
-        Image icon = Toolkit.getDefaultToolkit().getImage("Resources/PLANE1.png");
-        if (icon != null) {
-            this.setIconImage(icon);
-        } else {
-            System.out.println("Failed to load icon image");
-        }
-        this.addMouseMotionListener(new MyMouseMotionListener());
+        GameLogic = new GameLogic();
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent e) {
                 super.windowClosing(e);
                 dispose();
             }
         });
-    }
 
-    public void drawSquare(Graphics g, int x, int y, int n) {
-        g.drawRect(x, y, n, n);
-    }
-
-    public void printfString(Graphics g, String str, int x, int y) {
-        g.drawString(str, x, y);
-    }
-
-
-    public void DrawNSquare(Graphics g, int x,int y,int n,int m){
-        g.drawRect(x,y,1,1);
-        while(n>0){
-            drawSquare(g,x,y,n);
-            n-=2*m;
-            x+=m;
-            y+=m;
-        }
-    }
-
-    public void drawPolygon(Graphics g, int x, int y, int n, int r) {
-        int[] xPoints = new int[n];
-        int[] yPoints = new int[n];
-        for(int i = 0; i < n; i++) {
-            xPoints[i] = (int) (x + r * Math.cos(2 * Math.PI * i / n));
-            yPoints[i] = (int) (y + r * Math.sin(2 * Math.PI * i / n));
+        try {
+            background = ImageIO.read(new File("Resources/Background.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
-        for(int i = 0; i < n; i++) {
-            g.drawLine(xPoints[i], yPoints[i], xPoints[(i+1)%n], yPoints[(i+1)%n]);
-        }
+        GameLogic.addPlane(new Plane(
+                new Point(300,400),
+                Plane.Plane_Type.PLANE2,
+                1000,
+                10000,
+                1,
+                GameLogic,
+                new PlaneControl(KeyEvent.VK_UP, KeyEvent.VK_RIGHT, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_SPACE)
+        ));
 
+        GameLogic.addPlane(new Plane(
+                new Point(100,400),
+                Plane.Plane_Type.PLANE4,
+                1000,
+                10000,
+                1,
+                GameLogic,
+                new PlaneControl(KeyEvent.VK_W, KeyEvent.VK_D, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_Q)
+        ));
+        this.addKeyListener(new PlaneKeyListener(GameLogic.getAllPlanes()));
+
+
+        this.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                    mouseX = e.getX();
+                    mouseY = e.getY();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
     }
+
 
     @Override
     public void update(Graphics g) {
-        super.update(g);
+        if (image == null) {
+            image = createImage(this.getWidth(), this.getHeight());
+            //Tạo một 1 graphics ẩn
+            second = image.getGraphics();
+            //Lấy graphics ẩn
+        }
+        paint(second);
+        //Vẽ trên graphics ẩn
+        g.drawImage(image, 0, 0, null);
     }
 
     @Override
     public void paint(Graphics g) {
-        super.paint(g);
-        // Draw a square
-        printfString(g, "Task 1: ", 120, 90);
-        drawSquare(g, 100, 100, 100);
-//
-//        // Draw concentric squares
-          printfString(g, "Task 2: ", 120, 270);
-          DrawNSquare(g,100,300,100,10);
-//
-//
-          printfString(g, "Task 3: ", 120, 420);
-          drawPolygon(g, 140, 500, 5, 60);
-
-        //! Kéo thả chuột để vẽ đoạn thẳng
-//        if (start != null && end != null) {
-//            g.drawLine(start.x, start.y, end.x, end.y);
-//        }
-
-        //Kéo thả để vẽ hình chữ nhật
-        if (start != null && end != null) {
-            g.drawRect(start.x, start.y, end.x - start.x, end.y - start.y);
+        g.drawImage(background, 0, 0, null);
+        if(GameLogic!=null) {
+            for (Plane PLANE : GameLogic.getAllPlanes()) {
+                PLANE.MoveX((PLANE.getPlaneSpeed() * (PLANE.vectorRight - PLANE.vectorLeft)) / GameLogic.FPS);
+                PLANE.MoveY((PLANE.getPlaneSpeed() * (PLANE.vectorDown - PLANE.vectorUp)) / GameLogic.FPS);
+                PLANE.draw(g);
+            }
         }
+//        if(PLANE1 != null) {
+//            this.PLANE_SPEED = PLANE1.getPlaneSpeed();
+//            //Draw theo phím
+//            PLANE1.MoveX((PLANE_SPEED * (vectorRight - vectorLeft)) / GameLogic.FPS);
+//            PLANE1.MoveY((PLANE_SPEED * (vectorDown - vectorUp)) / GameLogic.FPS);
+
+            //Draw theo chuột
+
+//            if (!reachMouseDestination()) {
+//                float vectorX = mouseX - PLANE1.getX();
+//                float vectorY = mouseY - PLANE1.getY();
+//
+//                if (Math.abs(vectorX) > Math.abs(vectorY)) {
+//                    vectorY = vectorY / Math.abs(vectorX);
+//                    if (vectorX > 0) {
+//                        vectorX = 1;
+//                    } else {
+//                        vectorX = -1;
+//                    }
+//                } else {
+//                    vectorX = vectorX / Math.abs(vectorY);
+//                    if (vectorY > 0) {
+//                        vectorY = 1;
+//                    } else {
+//                        vectorY = -1;
+//                    }
+//                }
+//
+//                PLANE1.MoveX((int) vectorX * PLANE_SPEED / GameLogic.FPS);
+//                PLANE1.MoveY((int) vectorY * PLANE_SPEED / GameLogic.FPS);
+//            } else {
+//                mouseX = -1;
+//            }
+//            PLANE1.draw(g);
+//        }
     }
+
+//    public boolean reachMouseDestination() {
+//        return mouseX < 0 || Math.abs(x - mouseX) < 5 && Math.abs(y - mouseY) < 5;
+//    }
 
     @Override
     public void run() {
         while (true) {
             repaint();
             try {
-                Thread.sleep(10);
+                Thread.sleep(1000 / GameLogic.FPS);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
     }
